@@ -1,42 +1,49 @@
-import { getGlobalNotionData } from '@/lib/notion/getNotionData'
-import React from 'react'
-import { useGlobal } from '@/lib/global'
-import * as ThemeMap from '@/themes'
+import { getGlobalData } from '@/lib/notion/getNotionData'
+import { useEffect } from 'react'
 import BLOG from '@/blog.config'
+import { useRouter } from 'next/router'
+import { getLayoutByTheme } from '@/themes/theme'
+import { isBrowser } from '@/lib/utils'
+import { formatDateFmt } from '@/lib/formatDate'
+import { siteConfig } from '@/lib/config'
 
 const ArchiveIndex = props => {
-  const { theme, locale } = useGlobal()
-  const ThemeComponents = ThemeMap[theme]
-  const { siteInfo } = props
-  const meta = {
-    title: `${locale.NAV.ARCHIVE} | ${siteInfo?.title}`,
-    description: siteInfo?.description,
-    image: siteInfo?.pageCover,
-    slug: 'archive',
-    type: 'website'
-  }
+  // 根据页面路径加载不同Layout文件
+  const Layout = getLayoutByTheme({ theme: siteConfig('THEME'), router: useRouter() })
 
-  return <ThemeComponents.LayoutArchive {...props} meta={meta} />
+  useEffect(() => {
+    if (isBrowser) {
+      const anchor = window.location.hash
+      if (anchor) {
+        setTimeout(() => {
+          const anchorElement = document.getElementById(anchor.substring(1))
+          if (anchorElement) {
+            anchorElement.scrollIntoView({ block: 'start', behavior: 'smooth' })
+          }
+        }, 300)
+      }
+    }
+  }, [])
+
+  return <Layout {...props} />
 }
 
 export async function getStaticProps() {
-  const props = await getGlobalNotionData({ from: 'archive-index' })
+  const props = await getGlobalData({ from: 'archive-index' })
   // 处理分页
-  props.posts = props.allPages.filter(page => page.type === 'Post' && page.status === 'Published')
+  props.posts = props.allPages?.filter(page => page.type === 'Post' && page.status === 'Published')
   delete props.allPages
 
   const postsSortByDate = Object.create(props.posts)
 
   postsSortByDate.sort((a, b) => {
-    const dateA = new Date(a?.date?.start_date || a.createdTime)
-    const dateB = new Date(b?.date?.start_date || b.createdTime)
-    return dateB - dateA
+    return b?.publishDate - a?.publishDate
   })
 
   const archivePosts = {}
 
   postsSortByDate.forEach(post => {
-    const date = post.date?.start_date?.slice(0, 7) || post.createdTime
+    const date = formatDateFmt(post.publishDate, 'yyyy-MM')
     if (archivePosts[date]) {
       archivePosts[date].push(post)
     } else {
