@@ -7,7 +7,7 @@ import CONFIG from '../config'
 import NotionPage from '@/components/NotionPage'
 import NotionIcon from '@/components/NotionIcon'
 import TwikooCommentCount from '@/components/TwikooCommentCount'
-import { formatDateFmt } from '@/lib/formatDate'
+import { formatDateFmt } from '@/lib/utils/formatDate'
 import { siteConfig } from '@/lib/config'
 import { checkContainHttp, sliceUrlFromHttp } from '@/lib/utils'
 
@@ -40,7 +40,7 @@ const BlogPostCard = ({ post, index, showSummary }) => {
             passHref
             className={`cursor-pointer text-3xl ${showPreview ? 'text-center' : ''} leading-tight text-gray-700 dark:text-gray-100 hover:text-blue-500 dark:hover:text-blue-400`}>
 
-            <NotionIcon icon={post.pageIcon} /> <span className='menu-link'>{post.title}</span>
+            {siteConfig('POST_TITLE_ICON') && <NotionIcon icon={post.pageIcon} />} <span className='menu-link'>{post.title}</span>
 
           </Link>
 
