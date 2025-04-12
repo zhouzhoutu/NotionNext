@@ -540,7 +540,7 @@ const BLOG = {
       console.warn('Failed to load package.json version:', error)
       return '1.0.0' // 缺省版本号
     }
-  })()
+  })(),
    // uuid重定向至 slug
    UUID_REDIRECT: process.env.UUID_REDIRECT || false
 }
