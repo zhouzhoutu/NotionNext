@@ -59,7 +59,7 @@ export async function getStaticProps({ params: { prefix, slug }, locale }) {
 
   // 处理非列表内文章的内信息
   if (!props?.post) {
-    const pageId = slug.slice(-1)[0]
+    const pageId = slug
     if (pageId.length >= 32) {
       const post = await getPost(pageId)
       props.post = post
